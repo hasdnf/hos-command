@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>HendrikOS Command</title>
+<style>
+  :root{--bg:#0d1117;--card:#161b22;--card2:#1c2330;--txt:#e6edf3;--dim:#8b949e;--fleet:#3fb950;--kalcon:#d29922;--personal:#58a6ff;--red:#f85149;--amber:#d29922;}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:15px;line-height:1.45}
+  #gate{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99;gap:14px}
+  #gate h1{font-size:20px;font-weight:600}
+  #gate input{background:var(--card);border:1px solid #30363d;color:var(--txt);padding:12px 16px;border-radius:10px;font-size:18px;text-align:center;width:220px}
+  #gate button,button{background:var(--card2);color:var(--txt);border:1px solid #30363d;padding:10px 18px;border-radius:10px;font-size:15px;font-weight:600}
+  #gate .err{color:var(--red);font-size:13px;min-height:16px}
+  .wrap{max-width:640px;margin:0 auto;padding:14px 14px 90px}
+  header{display:flex;align-items:baseline;justify-content:space-between;padding:8px 2px 2px}
+  header h1{font-size:19px;font-weight:700}
+  header .today{color:var(--dim);font-size:12px}
+  .tabs{display:flex;gap:6px;overflow-x:auto;padding:10px 2px;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{background:var(--card);border:1px solid #30363d;border-radius:20px;padding:7px 14px;font-size:13px;font-weight:600;color:var(--dim);white-space:nowrap}
+  .tab.on{background:var(--card2);color:var(--txt);border-color:#4d5a6b}
+  .urgentbar{background:#2d1214;border:1px solid var(--red);border-radius:10px;padding:8px 12px;font-size:13px;margin-bottom:10px}
+  .urgentbar b{color:var(--red)}
+  .item{background:var(--card);border:1px solid #30363d;border-left:4px solid var(--dim);border-radius:10px;padding:10px 12px;margin-bottom:8px;display:flex;gap:10px;align-items:flex-start}
+  .item.fleet{border-left-color:var(--fleet)}
+  .item.kalcon{border-left-color:var(--kalcon)}
+  .item.personal{border-left-color:var(--personal)}
+  .item.done{opacity:.45}
+  .item .box{flex:0 0 auto;width:22px;height:22px;border:2px solid #4d5a6b;border-radius:6px;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:14px}
+  .item.done .box{background:var(--fleet);border-color:var(--fleet);color:#04260f}
+  .item .body{flex:1;min-width:0}
+  .item .t{font-weight:600;font-size:14.5px;word-break:break-word}
+  .item.done .t{text-decoration:line-through}
+  .item .m{font-size:12px;color:var(--dim);margin-top:3px;display:flex;gap:8px;flex-wrap:wrap}
+  .tag{padding:1px 8px;border-radius:8px;font-size:11px;font-weight:700}
+  .tag.fleet{background:#12301b;color:var(--fleet)}
+  .tag.kalcon{background:#332a10;color:var(--kalcon)}
+  .tag.personal{background:#122744;color:var(--personal)}
+  .due.overdue{color:var(--red);font-weight:700}
+  .due.soon{color:var(--amber);font-weight:600}
+  .item .del{flex:0 0 auto;background:none;border:none;color:var(--dim);font-size:17px;padding:0 4px}
+  .fab{position:fixed;right:18px;bottom:18px;width:54px;height:54px;border-radius:50%;background:var(--personal);color:#04121f;font-size:28px;border:none;box-shadow:0 4px 16px rgba(0,0,0,.5)}
+  #form{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;align-items:flex-end;justify-content:center;z-index:50}
+  #form.open{display:flex}
+  #form .panel{background:var(--card);width:100%;max-width:640px;border-radius:16px 16px 0 0;padding:16px}
+  #form h3{font-size:15px;margin-bottom:10px}
+  #form input,#form select{width:100%;background:var(--card2);border:1px solid #30363d;color:var(--txt);border-radius:9px;padding:10px;font-size:15px;margin-bottom:9px}
+  #form .row{display:flex;gap:8px}
+  #form .row>*{flex:1}
+  .empty{color:var(--dim);text-align:center;padding:30px 10px;font-size:14px}
+  @media print{ body{background:#fff;color:#000} #gate,.tabs,.fab,#form,.del{display:none!important} .item{border-color:#999;page-break-inside:avoid} }
+</style>
+</head>
+<body>
+<div id="gate">
+  <h1>HendrikOS Command</h1>
+  <input id="pin" type="password" inputmode="numeric" placeholder="Passcode" autocomplete="off">
+  <button onclick="tryGate()">Enter</button>
+  <div class="err" id="gateErr"></div>
+</div>
+
+<div class="wrap" id="app" style="display:none">
+  <header><h1>HendrikOS Command</h1><div class="today" id="today"></div></header>
+  <div class="tabs" id="tabs"></div>
+  <div id="urgent"></div>
+  <div id="list"></div>
+</div>
+
+<div id="form">
+  <div class="panel">
+    <h3>New item</h3>
+    <input id="fTitle" placeholder="What needs doing?">
+    <div class="row">
+      <select id="fWho"><option value="fleet">Fleet</option><option value="kalcon">KALCON</option><option value="personal" selected>Personal / Admin</option></select>
+      <input id="fDue" type="date">
+    </div>
+    <div class="row">
+      <select id="fPri"><option value="">Normal</option><option value="hi">High</option></select>
+      <button onclick="saveForm()">Add</button>
+      <button onclick="closeForm()" style="color:var(--dim)">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<button class="fab" onclick="openForm()">+</button>
+
+<script>
+const PIN='2027';
+const KEY='hos-command-v1';
+const SEED=JSON.parse(decodeURIComponent(escape(atob('Y29uc3QgU0VFRD1bCiB7aWQ6MSx3aG86J2thbGNvbicsdDonUmVwbHkgdG8gWmFrXHUyMDE5cyB0ZXh0IGFib3V0IHNpdGUtdmlzaXQgdGltaW5nJyxkdWU6JzIwMjYtMTEtMTYnLGhpOnRydWUsZG9uZTpmYWxzZX0sCiB7aWQ6Mix3aG86J2thbGNvbicsdDonU2VuZCBUb2RkIHRoZSBvbmUtcGFnZXIgKGRyYWZ0IHJlYWR5IGluIG9uZXBhZ2VyLyBmb2xkZXIpJyxkdWU6JzIwMjYtMTEtMTgnLGhpOnRydWUsZG9uZTpmYWxzZX0sCiB7aWQ6Myx3aG86J2thbGNvbicsdDonQ2hhc2UgdGhlIFBPIFx1MjAxNCBidXllciBzYWlkIFx1MjAxY0ZyaWRheVx1MjAxZCwgbm90IHNlZW4nLGR1ZTonMjAyNi0xMS0xOCcsaGk6dHJ1ZSxkb25lOmZhbHNlfSwKIHtpZDo0LHdobzona2FsY29uJyx0OidBc2sgV2lsbGlhbSBmb3IgdGhlIGN1cnJlbnQgZHJhd2luZyBzZXQnLGR1ZTonMjAyNi0xMS0xOCcsZG9uZTpmYWxzZX0sCiB7aWQ6NSx3aG86J2thbGNvbicsdDonQXNrIEtpbWJlcmx5IGZvciB0aGUgcHJlLWF3YXJkIHNjaGVkdWxlIGJhc2VsaW5lIChMMlx1MjE5MkwzKScsZHVlOicyMDI2LTExLTE4Jyxkb25lOmZhbHNlfSwKIHtpZDo2LHdobzona2FsY29uJyx0OidDb25maXJtIHRoZSBHQ1x1MjAxOXMgb2ZmaWNpYWwgY29udHJhY3QgZW50aXR5IG5hbWUnLGR1ZTonMjAyNi0xMS0yMCcsZG9uZTpmYWxzZX0sCiB7aWQ6Nyx3aG86J2thbGNvbicsdDonV2Vla2x5IDVDIGNoZWNrLWluIHdpdGggVG9kZCAocmVjdXJyaW5nKScsZHVlOicnLGRvbmU6ZmFsc2V9LAoge2lkOjgsd2hvOidrYWxjb24nLHQ6J0ppbSBzdGFydHMgXHUyMDE0IEtBTENPTiBzZWNvbmQgdGVhbSBtZW1iZXInLGR1ZTonMjAyNi0xMi0wMScsZG9uZTpmYWxzZX0sCiB7aWQ6OSx3aG86J2thbGNvbicsdDonS0FMQ09OIEhvbGlkYXkgUGFydHknLGR1ZTonMjAyNi0xMi0wNCcsZG9uZTpmYWxzZX0sCiB7aWQ6MTAsd2hvOidmbGVldCcsdDonQ2FsZHdlbGwgVmFsbGV5IFx1MjAxMyBXZWVrbHkgUHJvamVjdCBTeW5jIChNb24sIHJlY3VycmluZyknLGR1ZTonJyxkb25lOmZhbHNlfSwKIHtpZDoxMSx3aG86J2ZsZWV0Jyx0OidGbGVldDogZGVjaWRlIHN0YXR1cyBcdTIwMTQgY2FsbCBFdWdlbmUgb3IgcmVzaWduIGluIHdyaXRpbmcgKG5ldmVyIGFyZ3VlIGluIHdyaXRpbmcpJyxkdWU6JzIwMjYtMTEtMjAnLGhpOnRydWUsZG9uZTpmYWxzZX0sCiB7aWQ6MTIsd2hvOidmbGVldCcsdDonQVVTMTAxIHNpdGUgZ3JhZGluZyBtZWV0aW5nIFx1MjAxNCBDQU5DRUxFRCB0b25pZ2h0JyxkdWU6JzIwMjYtMTEtMTYnLGRvbmU6dHJ1ZX0sCiB7aWQ6MTMsd2hvOidwZXJzb25hbCcsdDonV2F5bmUgQ2hhbiAvIFZJU0FTUS1DT0xFTUFOOiBhY2NlcHQgb3IgZGVjbGluZSBBU01FIFZJSUkgY29uc3VsdCBcdTIwMTQgdGhpcyBvbmUgcGF5cycsZHVlOicyMDI2LTExLTE3JyxoaTp0cnVlLGRvbmU6ZmFsc2V9LAoge2lkOjE0LHdobzoncGVyc29uYWwnLHQ6J0FEUCBhbGVydHMgKHBhc3N3b3JkICsgc2lnbi1pbiBjaGFuZ2VkIDExLzE2IDEyOjQzIEFNKSBcdTIwMTQgY29uZmlybSBpdCB3YXMgeW91JyxkdWU6JzIwMjYtMTEtMTcnLGhpOnRydWUsZG9uZTpmYWxzZX0sCiB7aWQ6MTUsd2hvOidwZXJzb25hbCcsdDonQ2FwaXRhbCBPbmUgXHUyMDFjWW91ciBwYXltZW50IGhhcyBiZWVuIHJldHVybmVkXHUyMDFkIFx1MjAxNCBmaW5kIG91dCB3aGljaCBwYXltZW50JyxkdWU6JzIwMjYtMTEtMTgnLGRvbmU6ZmFsc2V9LAoge2lkOjE2LHdobzoncGVyc29uYWwnLHQ6J01hYyBDYWxlbmRhcjogYWRkIEZsZWV0ICsgS0FMQ09OIEV4Y2hhbmdlIGFjY291bnRzIChwYW5lIGFscmVhZHkgb3BlbiknLGR1ZTonMjAyNi0xMS0xNycsZG9uZTpmYWxzZX0sCiB7aWQ6MTcsd2hvOidwZXJzb25hbCcsdDonTWlkLURlY2VtYmVyOiBcdTIwMWN3aGljaCBvbmUgaXMgdGhlIHJlYWwgam9iXHUyMDFkIHJldmlldyBcdTIwMTQgcHV0IGl0IG9uIHRoZSBjYWxlbmRhciBub3cnLGR1ZTonMjAyNi0xMi0xNCcsZG9uZTpmYWxzZX0sCiB7aWQ6MTgsd2hvOidwZXJzb25hbCcsdDonTWlzc291cmkgdW5jbGFpbWVkIHByb3BlcnR5OiBzaWduIE1PLWNsYWltLTg4MjIwMjIsIHVwbG9hZCArIElELCBwaG9uZSA5MzYtNDkwOScsZHVlOicyMDI2LTExLTIxJyxkb25lOmZhbHNlfSwKIHtpZDoxOSx3aG86J3BlcnNvbmFsJyx0OidDYWxpZm9ybmlhIHVuY2xhaW1lZCBwcm9wZXJ0eTogY291cnQgd2luZG93IGNsb3NlcyB+RGVjIDE5IFx1MjAxNCBkZWNpZGUgb24gMjQ2MzkzMjQnLGR1ZTonMjAyNi0xMi0xMCcsaGk6dHJ1ZSxkb25lOmZhbHNlfSwKIHtpZDoyMCx3aG86J3BlcnNvbmFsJyx0OidUZWxsIERhZCBhYm91dCB0aGUgdHdvIEJlbHRvbiBNTyBwcm9wZXJ0aWVzICgkMTUgKyAkMzApJyxkdWU6JycsZG9uZTpmYWxzZX0sCl07'))));
+
+let items, tab='all';
+try{ items=JSON.parse(localStorage.getItem(KEY))||null }catch(e){ items=null }
+if(!items){ items=SEED.slice(); persist(); }
+function persist(){ localStorage.setItem(KEY, JSON.stringify(items)); }
+
+function tryGate(){
+  if(document.getElementById('pin').value===PIN){
+    document.getElementById('gate').style.display='none';
+    document.getElementById('app').style.display='block';
+    render();
+  } else { document.getElementById('gateErr').textContent='Wrong passcode.'; }
+}
+document.getElementById('pin').addEventListener('keydown',e=>{ if(e.key==='Enter') tryGate(); });
+
+const TABS=[['all','All'],['fleet','Fleet'],['kalcon','KALCON'],['personal','Personal'],['open','Open only']];
+document.getElementById('tabs').innerHTML=TABS.map(([k,l])=>`<div class="tab${k==='all'?' on':''}" onclick="setTab('${k}',this)">${l}</div>`).join('');
+function setTab(k,el){ tab=k; document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on')); el.classList.add('on'); render(); }
+
+function daysLeft(d){ if(!d) return null; const now=new Date(); now.setHours(0,0,0,0); return Math.round((new Date(d+'T12:00')-now)/864e5); }
+function dueHtml(d){ const dl=daysLeft(d); if(dl===null) return ''; const dt=new Date(d+'T12:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}); let cls=''; if(dl<0) cls='overdue'; else if(dl<=2) cls='soon'; return `<span class="due ${cls}">${dl<0?'OVERDUE ':''}${dl===0?'Today':dt}</span>`; }
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function render(){
+  document.getElementById('today').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
+  let list=items.slice();
+  if(tab==='open') list=list.filter(i=>!i.done);
+  else if(tab!=='all') list=list.filter(i=>i.who===tab);
+  const rank=i=>(i.done?2:0)+(i.hi&&!i.done?0:1);
+  list.sort((a,b)=>rank(a)-rank(b)||String(a.due||'9999').localeCompare(b.due||'9999'));
+  const overdue=items.filter(i=>!i.done&&daysLeft(i.due)<0).length;
+  document.getElementById('urgent').innerHTML=overdue?`<div class="urgentbar"><b>${overdue} overdue</b> \u2014 oldest first. Clear these before anything new.</div>`:'';
+  document.getElementById('list').innerHTML=list.length?list.map(i=>`
+   <div class="item ${i.who} ${i.done?'done':''}">
+     <div class="box" onclick="toggle(${i.id})">${i.done?'\u2713':''}</div>
+     <div class="body">
+       <div class="t">${esc(i.t)}</div>
+       <div class="m"><span class="tag ${i.who}">${i.who==='personal'?'ADMIN':i.who.toUpperCase()}</span>${i.hi&&!i.done?'<span class="due overdue">HIGH</span>':''}${dueHtml(i.due)}</div>
+     </div>
+     <button class="del" onclick="del(${i.id})">\u00d7</button>
+   </div>`).join(''):'<div class="empty">Nothing here. Tap + to add.</div>';
+}
+function toggle(id){ const i=items.find(x=>x.id===id); i.done=!i.done; persist(); render(); }
+function del(id){ items=items.filter(x=>x.id!==id); persist(); render(); }
+function openForm(){ document.getElementById('form').classList.add('open'); document.getElementById('fTitle').focus(); }
+function closeForm(){ document.getElementById('form').classList.remove('open'); }
+function saveForm(){
+  const t=document.getElementById('fTitle').value.trim(); if(!t) return;
+  items.push({id:Date.now(),who:document.getElementById('fWho').value,t,due:document.getElementById('fDue').value||'',hi:document.getElementById('fPri').value==='hi',done:false});
+  persist(); closeForm();
+  document.getElementById('fTitle').value=''; document.getElementById('fDue').value=''; document.getElementById('fPri').value='';
+  render();
+}
+</script>
+</body>
+</html>
