@@ -90,7 +90,28 @@
 <script>
 const PIN='2027';
 const KEY='hos-command-v1';
-const SEED=JSON.parse(decodeURIComponent(escape(atob('Y29uc3QgU0VFRD1bCiB7aWQ6MSx3aG86J2thbGNvbicsdDonUmVwbHkgdG8gWmFrXHUyMDE5cyB0ZXh0IGFib3V0IHNpdGUtdmlzaXQgdGltaW5nJyxkdWU6JzIwMjYtMTEtMTYnLGhpOnRydWUsZG9uZTpmYWxzZX0sCiB7aWQ6Mix3aG86J2thbGNvbicsdDonU2VuZCBUb2RkIHRoZSBvbmUtcGFnZXIgKGRyYWZ0IHJlYWR5IGluIG9uZXBhZ2VyLyBmb2xkZXIpJyxkdWU6JzIwMjYtMTEtMTgnLGhpOnRydWUsZG9uZTpmYWxzZX0sCiB7aWQ6Myx3aG86J2thbGNvbicsdDonQ2hhc2UgdGhlIFBPIFx1MjAxNCBidXllciBzYWlkIFx1MjAxY0ZyaWRheVx1MjAxZCwgbm90IHNlZW4nLGR1ZTonMjAyNi0xMS0xOCcsaGk6dHJ1ZSxkb25lOmZhbHNlfSwKIHtpZDo0LHdobzona2FsY29uJyx0OidBc2sgV2lsbGlhbSBmb3IgdGhlIGN1cnJlbnQgZHJhd2luZyBzZXQnLGR1ZTonMjAyNi0xMS0xOCcsZG9uZTpmYWxzZX0sCiB7aWQ6NSx3aG86J2thbGNvbicsdDonQXNrIEtpbWJlcmx5IGZvciB0aGUgcHJlLWF3YXJkIHNjaGVkdWxlIGJhc2VsaW5lIChMMlx1MjE5MkwzKScsZHVlOicyMDI2LTExLTE4Jyxkb25lOmZhbHNlfSwKIHtpZDo2LHdobzona2FsY29uJyx0OidDb25maXJtIHRoZSBHQ1x1MjAxOXMgb2ZmaWNpYWwgY29udHJhY3QgZW50aXR5IG5hbWUnLGR1ZTonMjAyNi0xMS0yMCcsZG9uZTpmYWxzZX0sCiB7aWQ6Nyx3aG86J2thbGNvbicsdDonV2Vla2x5IDVDIGNoZWNrLWluIHdpdGggVG9kZCAocmVjdXJyaW5nKScsZHVlOicnLGRvbmU6ZmFsc2V9LAoge2lkOjgsd2hvOidrYWxjb24nLHQ6J0ppbSBzdGFydHMgXHUyMDE0IEtBTENPTiBzZWNvbmQgdGVhbSBtZW1iZXInLGR1ZTonMjAyNi0xMi0wMScsZG9uZTpmYWxzZX0sCiB7aWQ6OSx3aG86J2thbGNvbicsdDonS0FMQ09OIEhvbGlkYXkgUGFydHknLGR1ZTonMjAyNi0xMi0wNCcsZG9uZTpmYWxzZX0sCiB7aWQ6MTAsd2hvOidmbGVldCcsdDonQ2FsZHdlbGwgVmFsbGV5IFx1MjAxMyBXZWVrbHkgUHJvamVjdCBTeW5jIChNb24sIHJlY3VycmluZyknLGR1ZTonJyxkb25lOmZhbHNlfSwKIHtpZDoxMSx3aG86J2ZsZWV0Jyx0OidGbGVldDogZGVjaWRlIHN0YXR1cyBcdTIwMTQgY2FsbCBFdWdlbmUgb3IgcmVzaWduIGluIHdyaXRpbmcgKG5ldmVyIGFyZ3VlIGluIHdyaXRpbmcpJyxkdWU6JzIwMjYtMTEtMjAnLGhpOnRydWUsZG9uZTpmYWxzZX0sCiB7aWQ6MTIsd2hvOidmbGVldCcsdDonQVVTMTAxIHNpdGUgZ3JhZGluZyBtZWV0aW5nIFx1MjAxNCBDQU5DRUxFRCB0b25pZ2h0JyxkdWU6JzIwMjYtMTEtMTYnLGRvbmU6dHJ1ZX0sCiB7aWQ6MTMsd2hvOidwZXJzb25hbCcsdDonV2F5bmUgQ2hhbiAvIFZJU0FTUS1DT0xFTUFOOiBhY2NlcHQgb3IgZGVjbGluZSBBU01FIFZJSUkgY29uc3VsdCBcdTIwMTQgdGhpcyBvbmUgcGF5cycsZHVlOicyMDI2LTExLTE3JyxoaTp0cnVlLGRvbmU6ZmFsc2V9LAoge2lkOjE0LHdobzoncGVyc29uYWwnLHQ6J0FEUCBhbGVydHMgKHBhc3N3b3JkICsgc2lnbi1pbiBjaGFuZ2VkIDExLzE2IDEyOjQzIEFNKSBcdTIwMTQgY29uZmlybSBpdCB3YXMgeW91JyxkdWU6JzIwMjYtMTEtMTcnLGhpOnRydWUsZG9uZTpmYWxzZX0sCiB7aWQ6MTUsd2hvOidwZXJzb25hbCcsdDonQ2FwaXRhbCBPbmUgXHUyMDFjWW91ciBwYXltZW50IGhhcyBiZWVuIHJldHVybmVkXHUyMDFkIFx1MjAxNCBmaW5kIG91dCB3aGljaCBwYXltZW50JyxkdWU6JzIwMjYtMTEtMTgnLGRvbmU6ZmFsc2V9LAoge2lkOjE2LHdobzoncGVyc29uYWwnLHQ6J01hYyBDYWxlbmRhcjogYWRkIEZsZWV0ICsgS0FMQ09OIEV4Y2hhbmdlIGFjY291bnRzIChwYW5lIGFscmVhZHkgb3BlbiknLGR1ZTonMjAyNi0xMS0xNycsZG9uZTpmYWxzZX0sCiB7aWQ6MTcsd2hvOidwZXJzb25hbCcsdDonTWlkLURlY2VtYmVyOiBcdTIwMWN3aGljaCBvbmUgaXMgdGhlIHJlYWwgam9iXHUyMDFkIHJldmlldyBcdTIwMTQgcHV0IGl0IG9uIHRoZSBjYWxlbmRhciBub3cnLGR1ZTonMjAyNi0xMi0xNCcsZG9uZTpmYWxzZX0sCiB7aWQ6MTgsd2hvOidwZXJzb25hbCcsdDonTWlzc291cmkgdW5jbGFpbWVkIHByb3BlcnR5OiBzaWduIE1PLWNsYWltLTg4MjIwMjIsIHVwbG9hZCArIElELCBwaG9uZSA5MzYtNDkwOScsZHVlOicyMDI2LTExLTIxJyxkb25lOmZhbHNlfSwKIHtpZDoxOSx3aG86J3BlcnNvbmFsJyx0OidDYWxpZm9ybmlhIHVuY2xhaW1lZCBwcm9wZXJ0eTogY291cnQgd2luZG93IGNsb3NlcyB+RGVjIDE5IFx1MjAxNCBkZWNpZGUgb24gMjQ2MzkzMjQnLGR1ZTonMjAyNi0xMi0xMCcsaGk6dHJ1ZSxkb25lOmZhbHNlfSwKIHtpZDoyMCx3aG86J3BlcnNvbmFsJyx0OidUZWxsIERhZCBhYm91dCB0aGUgdHdvIEJlbHRvbiBNTyBwcm9wZXJ0aWVzICgkMTUgKyAkMzApJyxkdWU6JycsZG9uZTpmYWxzZX0sCl07'))));
+const SEED=[
+ {id:1,who:'kalcon',t:'Reply to Zak\u2019s text about site-visit timing',due:'2026-11-16',hi:true,done:false},
+ {id:2,who:'kalcon',t:'Send Todd the one-pager (draft ready in onepager/ folder)',due:'2026-11-18',hi:true,done:false},
+ {id:3,who:'kalcon',t:'Chase the PO \u2014 buyer said \u201cFriday\u201d, not seen',due:'2026-11-18',hi:true,done:false},
+ {id:4,who:'kalcon',t:'Ask William for the current drawing set',due:'2026-11-18',done:false},
+ {id:5,who:'kalcon',t:'Ask Kimberly for the pre-award schedule baseline (L2\u2192L3)',due:'2026-11-18',done:false},
+ {id:6,who:'kalcon',t:'Confirm the GC\u2019s official contract entity name',due:'2026-11-20',done:false},
+ {id:7,who:'kalcon',t:'Weekly 5C check-in with Todd (recurring)',due:'',done:false},
+ {id:8,who:'kalcon',t:'Jim starts \u2014 KALCON second team member',due:'2026-12-01',done:false},
+ {id:9,who:'kalcon',t:'KALCON Holiday Party',due:'2026-12-04',done:false},
+ {id:10,who:'fleet',t:'Caldwell Valley \u2013 Weekly Project Sync (Mon, recurring)',due:'',done:false},
+ {id:11,who:'fleet',t:'Fleet: decide status \u2014 call Eugene or resign in writing (never argue in writing)',due:'2026-11-20',hi:true,done:false},
+ {id:12,who:'fleet',t:'AUS101 site grading meeting \u2014 CANCELED tonight',due:'2026-11-16',done:true},
+ {id:13,who:'personal',t:'Wayne Chan / VISASQ-COLEMAN: accept or decline ASME VIII consult \u2014 this one pays',due:'2026-11-17',hi:true,done:false},
+ {id:14,who:'personal',t:'ADP alerts (password + sign-in changed 11/16 12:43 AM) \u2014 confirm it was you',due:'2026-11-17',hi:true,done:false},
+ {id:15,who:'personal',t:'Capital One \u201cYour payment has been returned\u201d \u2014 find out which payment',due:'2026-11-18',done:false},
+ {id:16,who:'personal',t:'Mac Calendar: add Fleet + KALCON Exchange accounts (pane already open)',due:'2026-11-17',done:false},
+ {id:17,who:'personal',t:'Mid-December: \u201cwhich one is the real job\u201d review \u2014 put it on the calendar now',due:'2026-12-14',done:false},
+ {id:18,who:'personal',t:'Missouri unclaimed property: sign MO-claim-8822022, upload + ID, phone 936-4909',due:'2026-11-21',done:false},
+ {id:19,who:'personal',t:'California unclaimed property: court window closes ~Dec 19 \u2014 decide on 24639324',due:'2026-12-10',hi:true,done:false},
+ {id:20,who:'personal',t:'Tell Dad about the two Belton MO properties ($15 + $30)',due:'',done:false},
+];
 
 let items, tab='all';
 try{ items=JSON.parse(localStorage.getItem(KEY))||null }catch(e){ items=null }
